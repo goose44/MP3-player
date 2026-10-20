@@ -21,15 +21,14 @@ panel_y = win_height - panel_height
 
 #Circle
 circle_radius = 100
-circle_x = 300
+circle_x = win_length // 2
 
-circle_y = win_height - circle_radius
+circle_y = panel_y  // 2
 
 running = True
 
 font = pygame.font.SysFont("arial", 36)
 text_surface = font.render("My MP3 Player", True, (255, 255, 255))
-screen.blit(text_surface, (250, 250))
 
 while running:
     for event in pygame.event.get():
@@ -37,6 +36,7 @@ while running:
             running = False
 
     screen.fill(LIGHT_GREEN)
+    screen.blit(text_surface, (50, 50))
 
     # Formula: pygame.draw.rect(surface, color, (x, y, width, height))
     pygame.draw.rect(screen, DARK_GRAY, (panel_x, panel_y, win_length, panel_height))

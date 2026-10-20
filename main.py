@@ -12,6 +12,10 @@ win_length = 800
 win_height = 600
 screen = pygame.display.set_mode((win_length, win_height))
 
+# Button size
+button_width = 60
+button_height = 60
+
 pygame.display.set_caption("Test")
 
 DARK_GRAY = (40, 40, 40)
@@ -23,15 +27,13 @@ GOLD = (226,190,98)
 # Control panel
 panel_height = 100
 panel_x = 0
-
 panel_y = win_height - panel_height
+control_panel_rect = pygame.Rect(panel_x, panel_y, win_length, panel_height)
 
 #Circle
 circle_radius = 100
 circle_x = win_length // 2
-
 circle_y = panel_y  // 2
-#circle_color = WHITE
 
 running = True
 
@@ -73,8 +75,29 @@ while running:
     screen.fill(LIGHT_GREEN)
     screen.blit(text_surface, (50, 50))
 
-    # Formula: pygame.draw.rect(surface, color, (x, y, width, height))
+    # CONTROL BAR
     pygame.draw.rect(screen, DARK_GRAY, (panel_x, panel_y, win_length, panel_height))
+
+    # Buttons
+    button_gap = 20
+
+    prev_button = pygame.Rect(0, 0, button_width, button_height)
+    next_button = pygame.Rect(0, 0, button_width, button_height)
+    play_button = pygame.Rect(0, 0, button_width, button_height)
+
+    # Play/Pause button
+    play_button.center = control_panel_rect.center
+    pygame.draw.rect(screen, WHITE, play_button, border_radius=15)
+
+    # Next button
+    next_button.centery = play_button.centery
+    next_button.centerx = play_button.centerx + button_width + button_gap
+    pygame.draw.rect(screen, WHITE, next_button, border_radius = button_width // 2)
+
+    # Previous button
+    prev_button.centery = play_button.centery
+    prev_button.centerx = play_button.centerx - button_width - button_gap
+    pygame.draw.rect(screen, WHITE, prev_button, border_radius = button_width // 2)
 
     # Formula: pygame.draw.circle(surface, color, (x, y), radius)
     pygame.draw.circle(screen, circle_color, (circle_x, circle_y), circle_radius)

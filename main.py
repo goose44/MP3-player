@@ -85,19 +85,51 @@ while running:
     next_button = pygame.Rect(0, 0, button_width, button_height)
     play_button = pygame.Rect(0, 0, button_width, button_height)
 
-    # Play/Pause button
     play_button.center = control_panel_rect.center
-    pygame.draw.rect(screen, WHITE, play_button, border_radius=15)
-
-    # Next button
     next_button.centery = play_button.centery
     next_button.centerx = play_button.centerx + button_width + button_gap
-    pygame.draw.rect(screen, WHITE, next_button, border_radius = button_width // 2)
-
-    # Previous button
     prev_button.centery = play_button.centery
     prev_button.centerx = play_button.centerx - button_width - button_gap
-    pygame.draw.rect(screen, WHITE, prev_button, border_radius = button_width // 2)
+
+    # Draw the buttons
+    pygame.draw.rect(screen, WHITE, play_button, border_radius=15)
+    pygame.draw.rect(screen, WHITE, next_button, border_radius=button_width // 2)
+    pygame.draw.rect(screen, WHITE, prev_button, border_radius=button_width // 2)
+
+    # Play/Pause icon
+    playx = play_button.centerx
+    playy = play_button.centery
+    s = 12
+    if paused or stopped:
+        pygame.draw.polygon(screen, DARK_GRAY, [
+            (playx - s + 3, playy - s),
+            (playx - s + 3, playy + s),
+            (playx + s + 3, playy),
+        ])
+    else:
+        pygame.draw.rect(screen, DARK_GRAY, (playx - 9, playy - s, 6, s * 2))
+        pygame.draw.rect(screen, DARK_GRAY, (playx + 3, playy - s, 6, s * 2))
+
+    # Next icon
+    cx = next_button.centerx
+    cy = next_button.centery
+    s = 10
+    pygame.draw.polygon(screen, DARK_GRAY, [
+        (cx - s - 3, cy - s),
+        (cx - s - 3, cy + s),
+        (cx + s - 3, cy),
+    ])
+    pygame.draw.rect(screen, DARK_GRAY, (cx + s - 1, cy - s, 4, s * 2))
+
+    # Previous icon
+    px = prev_button.centerx
+    py = prev_button.centery
+    pygame.draw.rect(screen, DARK_GRAY, (px - s - 3, py - s, 4, s * 2))
+    pygame.draw.polygon(screen, DARK_GRAY, [
+        (px + s + 3, py - s),
+        (px + s + 3, py + s),
+        (px - s + 3, py),
+    ])
 
     # Formula: pygame.draw.circle(surface, color, (x, y), radius)
     pygame.draw.circle(screen, circle_color, (circle_x, circle_y), circle_radius)

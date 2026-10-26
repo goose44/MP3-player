@@ -30,6 +30,19 @@ panel_x = 0
 panel_y = win_height - panel_height
 control_panel_rect = pygame.Rect(panel_x, panel_y, win_length, panel_height)
 
+# Buttons
+button_gap = 20
+
+prev_button = pygame.Rect(0, 0, button_width, button_height)
+next_button = pygame.Rect(0, 0, button_width, button_height)
+play_button = pygame.Rect(0, 0, button_width, button_height)
+
+play_button.center = control_panel_rect.center
+next_button.centery = play_button.centery
+next_button.centerx = play_button.centerx + button_width + button_gap
+prev_button.centery = play_button.centery
+prev_button.centerx = play_button.centerx - button_width - button_gap
+
 #Circle
 circle_radius = 100
 circle_x = win_length // 2
@@ -57,6 +70,20 @@ while running:
                         pygame.mixer.music.pause()
                     else:
                         pygame.mixer.music.unpause()
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                if play_button.collidepoint(event.pos):
+                    paused = not paused
+                    if paused:
+                        pygame.mixer.music.pause()
+                    else:
+                        pygame.mixer.music.unpause()
+                if next_button.collidepoint(event.pos):
+                    print ("Next clicked")
+                if prev_button.collidepoint(event.pos):
+                    print ("Previous clicked")
+
             elif event.key == pygame.K_s:
                 stopped = not stopped
                 if stopped:
@@ -77,19 +104,6 @@ while running:
 
     # CONTROL BAR
     pygame.draw.rect(screen, DARK_GRAY, (panel_x, panel_y, win_length, panel_height))
-
-    # Buttons
-    button_gap = 20
-
-    prev_button = pygame.Rect(0, 0, button_width, button_height)
-    next_button = pygame.Rect(0, 0, button_width, button_height)
-    play_button = pygame.Rect(0, 0, button_width, button_height)
-
-    play_button.center = control_panel_rect.center
-    next_button.centery = play_button.centery
-    next_button.centerx = play_button.centerx + button_width + button_gap
-    prev_button.centery = play_button.centery
-    prev_button.centerx = play_button.centerx - button_width - button_gap
 
     # Draw the buttons
     pygame.draw.rect(screen, WHITE, play_button, border_radius=15)

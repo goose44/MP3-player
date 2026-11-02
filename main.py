@@ -57,6 +57,15 @@ text_surface = font.render("My MP3 Player", True, (255, 255, 255))
 paused = False
 stopped = False
 
+def toggle_paused():
+    global paused, stoppped
+    paused = not paused
+    if not stopped:
+        if paused:
+            pygame.mixer.music.pause()
+        else:
+            pygame.mixer.music.unpause()
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

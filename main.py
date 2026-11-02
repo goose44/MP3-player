@@ -1,11 +1,7 @@
 import pygame
+import os
 
 pygame.init()
-
-# Hardcoded mp3 files (Will change to be more flexible later!)
-pygame.mixer.music.load("song1.mp3")
-pygame.mixer.music.play(0)
-pygame.mixer.music.set_volume(0.5)
 
 # Window size
 win_length = 800
@@ -23,6 +19,19 @@ GRAY = (103, 108, 144)
 WHITE = (255, 255, 255)
 LIGHT_GREEN = (173,250,146)
 GOLD = (226,190,98)
+
+songs = []
+for name in os.listdir("music"):
+    if name.lower().endswith(".mp3"):
+        path = os.path.join("music", name)
+        songs.append(path)
+
+current_index = 0
+print(songs)
+
+pygame.mixer.music.load(songs[current_index])
+pygame.mixer.music.play(0)
+pygame.mixer.music.set_volume(0.5)
 
 # Control panel
 panel_height = 100
@@ -58,13 +67,44 @@ paused = False
 stopped = False
 
 def toggle_paused():
-    global paused, stoppped
+    global paused, stopped
     paused = not paused
     if not stopped:
         if paused:
             pygame.mixer.music.pause()
         else:
             pygame.mixer.music.unpause()
+
+def stop_music():
+    global paused, stopped
+    stopped = not stopped
+    if stopped:
+        pygame.mixer.music.stop()
+        paused = False
+    else:
+        pygame.mixer.music.play(0)
+
+def next_song():
+    global current_index, paused, stopped
+    current_index = current_index + 1
+    if current_index >= len(songs):
+        current_index = 0 
+    pygame.mixer.music.load(songs[current_index])
+    pygame.mixer.music.play(0)
+    paused = False
+    stopped = False
+    print(songs[current_index])
+
+def previous_song():
+    global current_index, paused, stopped
+    current_index = current_index - 1
+    if current_index < 0:
+        current_index = len(songs) - 1
+    pygame.mixer.music.load(songs[current_index])
+    pygame.mixer.music.play(0)
+    paused = False
+    stopped = False
+    print(songs[current_index])
 
 while running:
     for event in pygame.event.get():
@@ -73,33 +113,19 @@ while running:
 
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
-                paused = not paused
-                if not stopped:
-                    if paused:
-                        pygame.mixer.music.pause()
-                    else:
-                        pygame.mixer.music.unpause()
+                toggle_paused()
+            elif event.key == pygame.K_s:
+                stop_music()
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 if play_button.collidepoint(event.pos):
-                    paused = not paused
-                    if paused:
-                        pygame.mixer.music.pause()
-                    else:
-                        pygame.mixer.music.unpause()
-                if next_button.collidepoint(event.pos):
-                    print ("Next clicked")
-                if prev_button.collidepoint(event.pos):
-                    print ("Previous clicked")
+                    toggle_paused()
 
-            elif event.key == pygame.K_s:
-                stopped = not stopped
-                if stopped:
-                    pygame.mixer.music.stop()
-                    paused = False
-                else:
-                    pygame.mixer.music.play(0)
+                elif next_button.collidepoint(event.pos):
+                    next_song()
+                elif prev_button.collidepoint(event.pos):
+                    previous_song()
 
             #print(paused, stopped)
 

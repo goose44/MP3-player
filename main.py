@@ -78,6 +78,7 @@ queue_y = 60
 row_height = 30
 queue_width = 230
 queue_height = 400
+queue_text_width = queue_width - 20
 
 def clean_name(path):
     return os.path.splitext(os.path.basename(path))[0]
@@ -91,6 +92,15 @@ def toggle_paused():
         else:
             pygame.mixer.music.unpause()
 
+def play_song(index):
+    global current_index, paused, stopped, scroll_x
+    current_index = index
+    pygame.mixer.music.load(songs[current_index])
+    pygame.mixer.music.play(0)
+    paused = False
+    stopped = False
+    scroll_x = 0
+
 def stop_music():
     global paused, stopped
     stopped = not stopped
@@ -101,28 +111,22 @@ def stop_music():
         pygame.mixer.music.play(0)
 
 def next_song():
-    global current_index, paused, stopped, scroll_x
-    current_index = current_index + 1
-    if current_index >= len(songs):
-        current_index = 0 
-    pygame.mixer.music.load(songs[current_index])
-    pygame.mixer.music.play(0)
-    paused = False
-    stopped = False
-    scroll_x = 0
+    new_index = current_index + 1
+    if new_index >= len(songs):
+        new_index = 0 
+    play_song(new_index)
 
 def previous_song():
-    global current_index, paused, stopped, scroll_x
-    current_index = current_index - 1
-    if current_index < 0:
-        current_index = len(songs) - 1
-    pygame.mixer.music.load(songs[current_index])
-    pygame.mixer.music.play(0)
-    paused = False
-    stopped = False
-    scroll_x = 0
+    new_index = current_index - 1
+    if new_index < 0:
+        new_index = len(songs) - 1
+    play_song(new_index)
 
 name_box = pygame.Rect(50, 100, 240, 30)
+row_rects = []
+for i in range(len(songs)):
+    rect = pygame.Rect(queue_x, queue_y + i * row_height, queue_text_width, row_height)
+    row_rects.append(rect)
 
 while running:
     for event in pygame.event.get():
@@ -144,6 +148,10 @@ while running:
                     next_song()
                 elif prev_button.collidepoint(event.pos):
                     previous_song()
+
+                for i, rect in enumerate(row_rects):
+                    if rect.collidepoint(event.pos):
+                        play_song(i)
 
     if paused:
         circle_color = GRAY

@@ -62,6 +62,7 @@ running = True
 # Texts
 font = pygame.font.SysFont("arial", 36)
 text_surface = font.render("My MP3 Player", True, (255, 255, 255))
+small_font = pygame.font.SysFont("arial", 24)
 
 paused = False
 stopped = False
@@ -135,7 +136,11 @@ while running:
         circle_color = WHITE
 
     screen.fill(LIGHT_GREEN)
+    song_path = songs[current_index]
+    song_name = os.path.splitext(os.path.basename(song_path))[0]
+    song_surface = small_font.render(song_name, True, WHITE)
     screen.blit(text_surface, (50, 50))
+    screen.blit(song_surface, (50, 100))
 
     # CONTROL BAR
     pygame.draw.rect(screen, DARK_GRAY, (panel_x, panel_y, win_length, panel_height))

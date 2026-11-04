@@ -57,15 +57,30 @@ circle_radius = 100
 circle_x = win_length // 2
 circle_y = panel_y  // 2
 
-running = True
-
 # Texts
 font = pygame.font.SysFont("arial", 36)
 text_surface = font.render("My MP3 Player", True, (255, 255, 255))
 small_font = pygame.font.SysFont("arial", 24)
 
+scroll_x = 0
+scroll_speed = 1
+
 paused = False
 stopped = False
+
+clock = pygame.time.Clock() 
+
+running = True
+
+# queue
+queue_x = 550
+queue_y = 60
+row_height = 30
+queue_width = 230
+queue_height = 400
+
+def clean_name(path):
+    return os.path.splitext(os.path.basename(path))[0]
 
 def toggle_paused():
     global paused, stopped
@@ -86,7 +101,7 @@ def stop_music():
         pygame.mixer.music.play(0)
 
 def next_song():
-    global current_index, paused, stopped
+    global current_index, paused, stopped, scroll_x
     current_index = current_index + 1
     if current_index >= len(songs):
         current_index = 0 
@@ -94,10 +109,10 @@ def next_song():
     pygame.mixer.music.play(0)
     paused = False
     stopped = False
-    print(songs[current_index])
+    scroll_x = 0
 
 def previous_song():
-    global current_index, paused, stopped
+    global current_index, paused, stopped, scroll_x
     current_index = current_index - 1
     if current_index < 0:
         current_index = len(songs) - 1
@@ -105,7 +120,9 @@ def previous_song():
     pygame.mixer.music.play(0)
     paused = False
     stopped = False
-    print(songs[current_index])
+    scroll_x = 0
+
+name_box = pygame.Rect(50, 100, 240, 30)
 
 while running:
     for event in pygame.event.get():
@@ -128,8 +145,6 @@ while running:
                 elif prev_button.collidepoint(event.pos):
                     previous_song()
 
-            #print(paused, stopped)
-
     if paused:
         circle_color = GRAY
     else:
@@ -137,10 +152,23 @@ while running:
 
     screen.fill(LIGHT_GREEN)
     song_path = songs[current_index]
-    song_name = os.path.splitext(os.path.basename(song_path))[0]
+    song_name = clean_name(songs[current_index])
     song_surface = small_font.render(song_name, True, WHITE)
+
+    if song_surface.get_width() > name_box.width:
+        scroll_x = scroll_x - scroll_speed
+        if scroll_x < -song_surface.get_width():
+            scroll_x = 0
+        text_x = name_box.x + scroll_x
+    else:
+        text_x = name_box.x
+
+    # Display the song name
     screen.blit(text_surface, (50, 50))
-    screen.blit(song_surface, (50, 100))
+
+    screen.set_clip(name_box)
+    screen.blit(song_surface, (text_x, name_box.y))
+    screen.set_clip(None)
 
     # CONTROL BAR
     pygame.draw.rect(screen, DARK_GRAY, (panel_x, panel_y, win_length, panel_height))
@@ -188,6 +216,23 @@ while running:
     # Formula: pygame.draw.circle(surface, color, (x, y), radius)
     pygame.draw.circle(screen, circle_color, (circle_x, circle_y), circle_radius)
 
+    # Queueing songs
+    pygame.draw.rect(screen, DARK_GRAY, (queue_x - 10, queue_y - 10, queue_width, queue_height), border_radius=15)
+    for i, path in enumerate(songs):
+        if i == current_index:
+            row_color = WHITE
+        else:
+            row_color = GRAY
+        
+        row_y = queue_y + i * row_height
+        row_box = pygame.Rect(queue_x, row_y, queue_width - 20, row_height)
+        row_surface = small_font.render(clean_name(path), True, row_color)
+
+        screen.set_clip(row_box)
+        screen.blit(row_surface, (queue_x, row_y))
+        screen.set_clip(None)
+
     pygame.display.flip()
+    clock.tick(60)
 
 pygame.quit()

@@ -80,6 +80,13 @@ queue_width = 230
 queue_height = 400
 queue_text_width = queue_width - 20
 
+# Progress bar
+bar_x = 50
+bar_width = win_length - 100
+bar_height = 10
+bar_y = panel_y - 30
+song_length = pygame.mixer.Sound(songs[current_index]).get_length()
+
 def clean_name(path):
     return os.path.splitext(os.path.basename(path))[0]
 
@@ -93,13 +100,14 @@ def toggle_paused():
             pygame.mixer.music.unpause()
 
 def play_song(index):
-    global current_index, paused, stopped, scroll_x
+    global current_index, paused, stopped, scroll_x, song_length
     current_index = index
     pygame.mixer.music.load(songs[current_index])
     pygame.mixer.music.play(0)
     paused = False
     stopped = False
     scroll_x = 0
+    song_length = pygame.mixer.Sound(songs[current_index]).get_length()
 
 def stop_music():
     global paused, stopped
@@ -152,6 +160,10 @@ while running:
                 for i, rect in enumerate(row_rects):
                     if rect.collidepoint(event.pos):
                         play_song(i)
+
+    # continues the song iff finished
+    if not pygame.mixer.music.get_busy() and not paused and not stopped:
+        next_song()
 
     if paused:
         circle_color = GRAY
@@ -239,6 +251,18 @@ while running:
         screen.set_clip(row_box)
         screen.blit(row_surface, (queue_x, row_y))
         screen.set_clip(None)
+    
+    # Progress bar
+    played_ms = pygame.mixer.music.get_pos() 
+    if stopped or played_ms < 0:
+        progress = 0
+    else:
+        progress = min(played_ms / 1000 / song_length, 1)
+    pygame.draw.rect(screen, DARK_GRAY, (bar_x, bar_y, bar_width, bar_height), border_radius=5)
+    
+    fill_width = int(bar_width * progress)
+    if fill_width > 0:
+        pygame.draw.rect(screen, GOLD, (bar_x, bar_y, fill_width, bar_height), border_radius=5)
 
     pygame.display.flip()
     clock.tick(60)
